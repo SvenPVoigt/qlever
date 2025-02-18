@@ -22,6 +22,7 @@ PropertyPath PropertyPath::makeModified(PropertyPath child,
   }
 }
 // _____________________________________________________________________________
+// DONE-Sven: overloaded makeModified with steps limits
 PropertyPath PropertyPath::makeModified(PropertyPath child,
                                         std::string_view modifier, 
                                         int64_t stepsMin, 
