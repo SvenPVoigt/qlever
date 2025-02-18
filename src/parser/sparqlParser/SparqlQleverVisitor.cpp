@@ -1838,10 +1838,21 @@ PropertyPath Visitor::visit(Parser::PathSequenceContext* ctx) {
 }
 
 // ____________________________________________________________________________________
+// DONE-Sven: Get stepsMin and stepsMax subrules from ctx
 PropertyPath Visitor::visit(Parser::PathEltContext* ctx) {
   PropertyPath p = visit(ctx->pathPrimary());
 
-  if (ctx->pathMod()) {
+  // StepsMin is guaranteed if stepsMax
+  if (ctx->pathMod() && ctx->pathMod()->stepsMax()) {
+    std::string modifier = ctx->pathMod()->getText();
+    int64_t stepsMin = parseNumericLiteral(ctx->pathMod()->stepsMin(), true);
+    int64_t stepsMax = parseNumericLiteral(ctx->pathMod()->stepsMax(), true);
+    p = PropertyPath::makeModified(p, modifier, stepsMin, stepsMax);
+  } else if (ctx->pathMod() && ctx->pathMod()->stepsMin()) {
+    int64_t stepsMin = parseNumericLiteral(ctx->pathMod()->stepsMin());
+    int64_t stepsMax = std::numeric_limits<int64_t>::max();
+    p = PropertyPath::makeModified(p, modifier, stepsMin, stepsMax);
+  } else if (ctx->pathMod()) {
     std::string modifier = ctx->pathMod()->getText();
     p = PropertyPath::makeModified(p, modifier);
   }

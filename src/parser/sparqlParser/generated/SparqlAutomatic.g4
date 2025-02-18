@@ -367,10 +367,14 @@ pathEltOrInverse
     : pathElt | negationOperator='^' pathElt
     ;
 
+/* DONE-Sven: Added stepsMin and stepsMax rules */
 pathMod
-    : '+' | '*' | '?'
+    : '+' | '*' | '?' | '{' stepsMin (',' stepsMax?)? '}'
     ;
 
+stepsMin: integer;
+
+stepsMax: integer;
 
 pathPrimary
     : iri | 'a' | '!' pathNegatedPropertySet | '(' path ')'

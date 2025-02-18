@@ -4,6 +4,7 @@
 #include "PropertyPath.h"
 
 // _____________________________________________________________________________
+// TODO-Sven: maybe move this constructor to the .h file?
 PropertyPath::PropertyPath(Operation op, std::string iri,
                            std::initializer_list<PropertyPath> children)
     : operation_(op), iri_(std::move(iri)), children_(children) {}
@@ -19,6 +20,14 @@ PropertyPath PropertyPath::makeModified(PropertyPath child,
     AD_CORRECTNESS_CHECK(modifier == "?");
     return makeWithChildren({std::move(child)}, Operation::ZERO_OR_ONE);
   }
+}
+// _____________________________________________________________________________
+PropertyPath PropertyPath::makeModified(PropertyPath child,
+                                        std::string_view modifier, 
+                                        int64_t stepsMin, 
+                                        int64_t stepsMax) {
+   // TODO-Sven: Not sure if AD_CORRECTNESS_CHECK is efficient or needed. Is this not what ANTLR4 is for?
+  return makeWithChildren({std::move(child)}, Operation::MIN_MAX, stepsMin, stepsMax);
 }
 
 // _____________________________________________________________________________
