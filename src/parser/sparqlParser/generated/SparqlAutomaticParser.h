@@ -1987,8 +1987,7 @@ public:
     PathModContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     MinLengthContext *minLength();
-    std::vector<MaxLengthContext *> maxLength();
-    MaxLengthContext* maxLength(size_t i);
+    MaxLengthContext *maxLength();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
