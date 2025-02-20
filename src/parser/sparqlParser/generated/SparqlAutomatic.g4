@@ -195,7 +195,10 @@ quads: triplesTemplate? ( quadsNotTriples '.'? triplesTemplate? )* ;
 
 quadsNotTriples: GRAPH varOrIri '{' triplesTemplate? '}' ;
 
-triplesTemplate: triplesSameSubject ( '.' triplesTemplate? )?;
+// We have replaced the original recursive definition with an equivalent
+// non-recursive definition for performance reasons.
+// Original definition: `triplesTemplate: triplesSameSubject ( '.' triplesTemplate? )?;`
+triplesTemplate: triplesSameSubject ( '.' triplesSameSubject )* '.'? ;
 
 
 // Corresponds to GraphPattern.
@@ -367,10 +370,12 @@ pathEltOrInverse
     : pathElt | negationOperator='^' pathElt
     ;
 
+/* DONE-Sven: Added stepsMin and stepsMax rules */
 pathMod
     : '+' | '*' | '?'
     ;
 
+foo: 'bar';
 
 pathPrimary
     : iri | 'a' | '!' pathNegatedPropertySet | '(' path ')'
