@@ -378,8 +378,6 @@ pathMod
 stepsMin: integer ;
 stepsMax: integer ;
 
-foo: 'bar';
-
 pathPrimary
     : iri | 'a' | '!' pathNegatedPropertySet | '(' path ')'
     ;

@@ -427,10 +427,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitFoo(SparqlAutomaticParser::FooContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual std::any visitPathPrimary(SparqlAutomaticParser::PathPrimaryContext *ctx) override {
     return visitChildren(ctx);
   }

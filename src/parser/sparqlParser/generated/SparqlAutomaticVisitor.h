@@ -225,8 +225,6 @@ public:
 
     virtual std::any visitStepsMax(SparqlAutomaticParser::StepsMaxContext *context) = 0;
 
-    virtual std::any visitFoo(SparqlAutomaticParser::FooContext *context) = 0;
-
     virtual std::any visitPathPrimary(SparqlAutomaticParser::PathPrimaryContext *context) = 0;
 
     virtual std::any visitPathNegatedPropertySet(SparqlAutomaticParser::PathNegatedPropertySetContext *context) = 0;

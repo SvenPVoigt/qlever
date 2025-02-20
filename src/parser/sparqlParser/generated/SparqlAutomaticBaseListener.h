@@ -325,9 +325,6 @@ public:
   virtual void enterStepsMax(SparqlAutomaticParser::StepsMaxContext * /*ctx*/) override { }
   virtual void exitStepsMax(SparqlAutomaticParser::StepsMaxContext * /*ctx*/) override { }
 
-  virtual void enterFoo(SparqlAutomaticParser::FooContext * /*ctx*/) override { }
-  virtual void exitFoo(SparqlAutomaticParser::FooContext * /*ctx*/) override { }
-
   virtual void enterPathPrimary(SparqlAutomaticParser::PathPrimaryContext * /*ctx*/) override { }
   virtual void exitPathPrimary(SparqlAutomaticParser::PathPrimaryContext * /*ctx*/) override { }
 
