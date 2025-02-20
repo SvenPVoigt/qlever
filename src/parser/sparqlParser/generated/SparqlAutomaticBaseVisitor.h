@@ -1,5 +1,5 @@
 
-// Generated from SparqlAutomatic.g4 by ANTLR 4.13.2
+// Generated from SparqlAutomatic.g4 by ANTLR 4.11.1
 
 #pragma once
 
@@ -424,6 +424,10 @@ public:
   }
 
   virtual std::any visitStepsMax(SparqlAutomaticParser::StepsMaxContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitFoo(SparqlAutomaticParser::FooContext *ctx) override {
     return visitChildren(ctx);
   }
 

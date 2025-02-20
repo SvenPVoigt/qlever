@@ -1,5 +1,5 @@
 
-// Generated from SparqlAutomatic.g4 by ANTLR 4.13.2
+// Generated from SparqlAutomatic.g4 by ANTLR 4.11.1
 
 #pragma once
 
@@ -224,6 +224,8 @@ public:
     virtual std::any visitStepsMin(SparqlAutomaticParser::StepsMinContext *context) = 0;
 
     virtual std::any visitStepsMax(SparqlAutomaticParser::StepsMaxContext *context) = 0;
+
+    virtual std::any visitFoo(SparqlAutomaticParser::FooContext *context) = 0;
 
     virtual std::any visitPathPrimary(SparqlAutomaticParser::PathPrimaryContext *context) = 0;
 

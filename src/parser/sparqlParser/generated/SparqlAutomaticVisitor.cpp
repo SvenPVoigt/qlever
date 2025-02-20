@@ -1,5 +1,5 @@
 
-// Generated from SparqlAutomatic.g4 by ANTLR 4.13.2
+// Generated from SparqlAutomatic.g4 by ANTLR 4.11.1
 
 
 #include "SparqlAutomaticVisitor.h"

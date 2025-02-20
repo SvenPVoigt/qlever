@@ -372,8 +372,11 @@ pathEltOrInverse
 
 /* DONE-Sven: Added stepsMin and stepsMax rules */
 pathMod
-    : '+' | '*' | '?'
+    : '+' | '*' | '?' | '{' stepsMin ( ',' ( stepsMax )? )? '}'
     ;
+
+stepsMin: integer ;
+stepsMax: integer ;
 
 foo: 'bar';
 

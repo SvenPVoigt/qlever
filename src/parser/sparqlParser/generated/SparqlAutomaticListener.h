@@ -1,5 +1,5 @@
 
-// Generated from SparqlAutomatic.g4 by ANTLR 4.13.2
+// Generated from SparqlAutomatic.g4 by ANTLR 4.11.1
 
 #pragma once
 
@@ -322,6 +322,9 @@ public:
 
   virtual void enterStepsMax(SparqlAutomaticParser::StepsMaxContext *ctx) = 0;
   virtual void exitStepsMax(SparqlAutomaticParser::StepsMaxContext *ctx) = 0;
+
+  virtual void enterFoo(SparqlAutomaticParser::FooContext *ctx) = 0;
+  virtual void exitFoo(SparqlAutomaticParser::FooContext *ctx) = 0;
 
   virtual void enterPathPrimary(SparqlAutomaticParser::PathPrimaryContext *ctx) = 0;
   virtual void exitPathPrimary(SparqlAutomaticParser::PathPrimaryContext *ctx) = 0;
