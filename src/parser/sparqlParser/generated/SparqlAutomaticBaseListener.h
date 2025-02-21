@@ -319,11 +319,11 @@ public:
   virtual void enterPathMod(SparqlAutomaticParser::PathModContext * /*ctx*/) override { }
   virtual void exitPathMod(SparqlAutomaticParser::PathModContext * /*ctx*/) override { }
 
-  virtual void enterMinLength(SparqlAutomaticParser::MinLengthContext * /*ctx*/) override { }
-  virtual void exitMinLength(SparqlAutomaticParser::MinLengthContext * /*ctx*/) override { }
+  virtual void enterStepsMin(SparqlAutomaticParser::StepsMinContext * /*ctx*/) override { }
+  virtual void exitStepsMin(SparqlAutomaticParser::StepsMinContext * /*ctx*/) override { }
 
-  virtual void enterMaxLength(SparqlAutomaticParser::MaxLengthContext * /*ctx*/) override { }
-  virtual void exitMaxLength(SparqlAutomaticParser::MaxLengthContext * /*ctx*/) override { }
+  virtual void enterStepsMax(SparqlAutomaticParser::StepsMaxContext * /*ctx*/) override { }
+  virtual void exitStepsMax(SparqlAutomaticParser::StepsMaxContext * /*ctx*/) override { }
 
   virtual void enterPathPrimary(SparqlAutomaticParser::PathPrimaryContext * /*ctx*/) override { }
   virtual void exitPathPrimary(SparqlAutomaticParser::PathPrimaryContext * /*ctx*/) override { }

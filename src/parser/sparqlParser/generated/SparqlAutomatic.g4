@@ -368,12 +368,12 @@ pathEltOrInverse
     ;
 
 pathMod
-    : '+' | '*' | '?' | '{' minLength ( ',' ( maxLength )? )? '}'
+    : '+' | '*' | '?' | '{' stepsMin ( ',' ( stepsMax )? )? '}'
     ;
 
-minLength: integer ;
+stepsMin: integer ;
 
-maxLength: integer ;
+stepsMax: integer ;
 
 
 pathPrimary

@@ -66,7 +66,7 @@ void sparqlautomaticParserInitialize() {
       "propertyListPathNotEmpty", "verbPath", "verbSimple", "tupleWithoutPath", 
       "tupleWithPath", "verbPathOrSimple", "objectListPath", "objectPath", 
       "path", "pathAlternative", "pathSequence", "pathElt", "pathEltOrInverse", 
-      "pathMod", "minLength", "maxLength", "pathPrimary", "pathNegatedPropertySet", 
+      "pathMod", "stepsMin", "stepsMax", "pathPrimary", "pathNegatedPropertySet", 
       "pathOneInPropertySet", "integer", "triplesNode", "blankNodePropertyList", 
       "triplesNodePath", "blankNodePropertyListPath", "collection", "collectionPath", 
       "graphNode", "graphNodePath", "varOrTerm", "varOrIri", "var", "graphTerm", 
@@ -9885,12 +9885,12 @@ SparqlAutomaticParser::PathModContext::PathModContext(ParserRuleContext *parent,
   : ParserRuleContext(parent, invokingState) {
 }
 
-SparqlAutomaticParser::MinLengthContext* SparqlAutomaticParser::PathModContext::minLength() {
-  return getRuleContext<SparqlAutomaticParser::MinLengthContext>(0);
+SparqlAutomaticParser::StepsMinContext* SparqlAutomaticParser::PathModContext::stepsMin() {
+  return getRuleContext<SparqlAutomaticParser::StepsMinContext>(0);
 }
 
-SparqlAutomaticParser::MaxLengthContext* SparqlAutomaticParser::PathModContext::maxLength() {
-  return getRuleContext<SparqlAutomaticParser::MaxLengthContext>(0);
+SparqlAutomaticParser::StepsMaxContext* SparqlAutomaticParser::PathModContext::stepsMax() {
+  return getRuleContext<SparqlAutomaticParser::StepsMaxContext>(0);
 }
 
 
@@ -9960,7 +9960,7 @@ SparqlAutomaticParser::PathModContext* SparqlAutomaticParser::pathMod() {
         setState(1037);
         match(SparqlAutomaticParser::T__3);
         setState(1038);
-        minLength();
+        stepsMin();
         setState(1043);
         _errHandler->sync(this);
 
@@ -9974,7 +9974,7 @@ SparqlAutomaticParser::PathModContext* SparqlAutomaticParser::pathMod() {
           _la = _input->LA(1);
           if (_la == SparqlAutomaticParser::INTEGER) {
             setState(1040);
-            maxLength();
+            stepsMax();
           }
         }
         setState(1045);
@@ -9996,44 +9996,44 @@ SparqlAutomaticParser::PathModContext* SparqlAutomaticParser::pathMod() {
   return _localctx;
 }
 
-//----------------- MinLengthContext ------------------------------------------------------------------
+//----------------- StepsMinContext ------------------------------------------------------------------
 
-SparqlAutomaticParser::MinLengthContext::MinLengthContext(ParserRuleContext *parent, size_t invokingState)
+SparqlAutomaticParser::StepsMinContext::StepsMinContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-SparqlAutomaticParser::IntegerContext* SparqlAutomaticParser::MinLengthContext::integer() {
+SparqlAutomaticParser::IntegerContext* SparqlAutomaticParser::StepsMinContext::integer() {
   return getRuleContext<SparqlAutomaticParser::IntegerContext>(0);
 }
 
 
-size_t SparqlAutomaticParser::MinLengthContext::getRuleIndex() const {
-  return SparqlAutomaticParser::RuleMinLength;
+size_t SparqlAutomaticParser::StepsMinContext::getRuleIndex() const {
+  return SparqlAutomaticParser::RuleStepsMin;
 }
 
-void SparqlAutomaticParser::MinLengthContext::enterRule(tree::ParseTreeListener *listener) {
+void SparqlAutomaticParser::StepsMinContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<SparqlAutomaticListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterMinLength(this);
+    parserListener->enterStepsMin(this);
 }
 
-void SparqlAutomaticParser::MinLengthContext::exitRule(tree::ParseTreeListener *listener) {
+void SparqlAutomaticParser::StepsMinContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<SparqlAutomaticListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitMinLength(this);
+    parserListener->exitStepsMin(this);
 }
 
 
-std::any SparqlAutomaticParser::MinLengthContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any SparqlAutomaticParser::StepsMinContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SparqlAutomaticVisitor*>(visitor))
-    return parserVisitor->visitMinLength(this);
+    return parserVisitor->visitStepsMin(this);
   else
     return visitor->visitChildren(this);
 }
 
-SparqlAutomaticParser::MinLengthContext* SparqlAutomaticParser::minLength() {
-  MinLengthContext *_localctx = _tracker.createInstance<MinLengthContext>(_ctx, getState());
-  enterRule(_localctx, 202, SparqlAutomaticParser::RuleMinLength);
+SparqlAutomaticParser::StepsMinContext* SparqlAutomaticParser::stepsMin() {
+  StepsMinContext *_localctx = _tracker.createInstance<StepsMinContext>(_ctx, getState());
+  enterRule(_localctx, 202, SparqlAutomaticParser::RuleStepsMin);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -10057,44 +10057,44 @@ SparqlAutomaticParser::MinLengthContext* SparqlAutomaticParser::minLength() {
   return _localctx;
 }
 
-//----------------- MaxLengthContext ------------------------------------------------------------------
+//----------------- StepsMaxContext ------------------------------------------------------------------
 
-SparqlAutomaticParser::MaxLengthContext::MaxLengthContext(ParserRuleContext *parent, size_t invokingState)
+SparqlAutomaticParser::StepsMaxContext::StepsMaxContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-SparqlAutomaticParser::IntegerContext* SparqlAutomaticParser::MaxLengthContext::integer() {
+SparqlAutomaticParser::IntegerContext* SparqlAutomaticParser::StepsMaxContext::integer() {
   return getRuleContext<SparqlAutomaticParser::IntegerContext>(0);
 }
 
 
-size_t SparqlAutomaticParser::MaxLengthContext::getRuleIndex() const {
-  return SparqlAutomaticParser::RuleMaxLength;
+size_t SparqlAutomaticParser::StepsMaxContext::getRuleIndex() const {
+  return SparqlAutomaticParser::RuleStepsMax;
 }
 
-void SparqlAutomaticParser::MaxLengthContext::enterRule(tree::ParseTreeListener *listener) {
+void SparqlAutomaticParser::StepsMaxContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<SparqlAutomaticListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterMaxLength(this);
+    parserListener->enterStepsMax(this);
 }
 
-void SparqlAutomaticParser::MaxLengthContext::exitRule(tree::ParseTreeListener *listener) {
+void SparqlAutomaticParser::StepsMaxContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<SparqlAutomaticListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitMaxLength(this);
+    parserListener->exitStepsMax(this);
 }
 
 
-std::any SparqlAutomaticParser::MaxLengthContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any SparqlAutomaticParser::StepsMaxContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<SparqlAutomaticVisitor*>(visitor))
-    return parserVisitor->visitMaxLength(this);
+    return parserVisitor->visitStepsMax(this);
   else
     return visitor->visitChildren(this);
 }
 
-SparqlAutomaticParser::MaxLengthContext* SparqlAutomaticParser::maxLength() {
-  MaxLengthContext *_localctx = _tracker.createInstance<MaxLengthContext>(_ctx, getState());
-  enterRule(_localctx, 204, SparqlAutomaticParser::RuleMaxLength);
+SparqlAutomaticParser::StepsMaxContext* SparqlAutomaticParser::stepsMax() {
+  StepsMaxContext *_localctx = _tracker.createInstance<StepsMaxContext>(_ctx, getState());
+  enterRule(_localctx, 204, SparqlAutomaticParser::RuleStepsMax);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {

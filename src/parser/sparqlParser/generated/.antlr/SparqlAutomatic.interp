@@ -458,8 +458,8 @@ pathSequence
 pathElt
 pathEltOrInverse
 pathMod
-minLength
-maxLength
+stepsMin
+stepsMax
 pathPrimary
 pathNegatedPropertySet
 pathOneInPropertySet

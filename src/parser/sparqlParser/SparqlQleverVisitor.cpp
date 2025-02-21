@@ -1841,10 +1841,27 @@ PropertyPath Visitor::visit(Parser::PathSequenceContext* ctx) {
 PropertyPath Visitor::visit(Parser::PathEltContext* ctx) {
   PropertyPath p = visit(ctx->pathPrimary());
 
-  if (ctx->pathMod()) {
+  // DONE-Sven: Added stepsMin and stepsMax extraction
+  if (ctx->pathMod() && ctx->pathMod()->stepsMax()) {
+    std::string modifier = ctx->pathMod()->getText();
+    int64_t stepsMin = visit(ctx->pathMod()->stepsMin()->integer());
+    int64_t stepsMax = visit(ctx->pathMod()->stepsMax()->integer());
+    p = PropertyPath::makeModified(p, modifier, stepsMin, stepsMax);
+    // p = PropertyPath::makeModified(p, modifier);
+  } else if (ctx->pathMod() && ctx->pathMod()->stepsMin()) {
+    std::string modifier = ctx->pathMod()->getText();
+    int64_t stepsMin = visit(ctx->pathMod()->stepsMin()->integer());
+    int64_t stepsMax = std::numeric_limits<int64_t>::max();
+    p = PropertyPath::makeModified(p, modifier, stepsMin, stepsMax);
+    // p = PropertyPath::makeModified(p, modifier);
+  } else if (ctx->pathMod()) {
     std::string modifier = ctx->pathMod()->getText();
     p = PropertyPath::makeModified(p, modifier);
   }
+  // if (ctx->pathMod()) {
+  //   std::string modifier = ctx->pathMod()->getText();
+  //   p = PropertyPath::makeModified(p, modifier);
+  // }
   return p;
 }
 
@@ -2673,6 +2690,11 @@ std::variant<int64_t, double> parseNumericLiteral(Ctx* ctx, bool parseAsInt) {
   }
 }
 }  // namespace
+
+// DONE-Sven: added parsing for purely positive integers
+// int64_t Visitor::visit(Parser::INTEGER_POSITIVE* ctx) {
+//   return parseNumericLiteral(ctx, true);
+// }
 
 // ____________________________________________________________________________________
 std::variant<int64_t, double> Visitor::visit(

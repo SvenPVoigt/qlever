@@ -476,6 +476,9 @@ class SparqlQleverVisitor {
 
   IntOrDouble visit(Parser::NumericLiteralContext* ctx);
 
+  // DONE-Sven: added static description
+//   static int64_t visit(Parser::INTEGER_POSITIVE* ctx);
+
   static IntOrDouble visit(Parser::NumericLiteralUnsignedContext* ctx);
 
   static IntOrDouble visit(Parser::NumericLiteralPositiveContext* ctx);

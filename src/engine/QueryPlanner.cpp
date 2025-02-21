@@ -860,6 +860,10 @@ ParsedQuery::GraphPattern QueryPlanner::seedFromPropertyPath(
                                 std::numeric_limits<size_t>::max());
     case PropertyPath::Operation::ZERO_OR_ONE:
       return seedFromTransitive(left, path, right, 0, 1);
+    // DONE-Sven: added custom limits for a MIN_MAX operation
+    case PropertyPath::Operation::MIN_MAX:
+      return seedFromTransitive(left, path, right, path.min_, path.max_);
+
   }
   AD_FAIL();
 }

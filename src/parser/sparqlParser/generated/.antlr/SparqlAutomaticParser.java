@@ -73,15 +73,15 @@ public class SparqlAutomaticParser extends Parser {
 		RULE_verbSimple = 89, RULE_tupleWithoutPath = 90, RULE_tupleWithPath = 91, 
 		RULE_verbPathOrSimple = 92, RULE_objectListPath = 93, RULE_objectPath = 94, 
 		RULE_path = 95, RULE_pathAlternative = 96, RULE_pathSequence = 97, RULE_pathElt = 98, 
-		RULE_pathEltOrInverse = 99, RULE_pathMod = 100, RULE_minLength = 101, 
-		RULE_maxLength = 102, RULE_pathPrimary = 103, RULE_pathNegatedPropertySet = 104, 
-		RULE_pathOneInPropertySet = 105, RULE_integer = 106, RULE_triplesNode = 107, 
-		RULE_blankNodePropertyList = 108, RULE_triplesNodePath = 109, RULE_blankNodePropertyListPath = 110, 
-		RULE_collection = 111, RULE_collectionPath = 112, RULE_graphNode = 113, 
-		RULE_graphNodePath = 114, RULE_varOrTerm = 115, RULE_varOrIri = 116, RULE_var = 117, 
-		RULE_graphTerm = 118, RULE_expression = 119, RULE_conditionalOrExpression = 120, 
-		RULE_conditionalAndExpression = 121, RULE_valueLogical = 122, RULE_relationalExpression = 123, 
-		RULE_numericExpression = 124, RULE_additiveExpression = 125, RULE_multiplicativeExpressionWithSign = 126, 
+		RULE_pathEltOrInverse = 99, RULE_pathMod = 100, RULE_stepsMin = 101, RULE_stepsMax = 102, 
+		RULE_pathPrimary = 103, RULE_pathNegatedPropertySet = 104, RULE_pathOneInPropertySet = 105, 
+		RULE_integer = 106, RULE_triplesNode = 107, RULE_blankNodePropertyList = 108, 
+		RULE_triplesNodePath = 109, RULE_blankNodePropertyListPath = 110, RULE_collection = 111, 
+		RULE_collectionPath = 112, RULE_graphNode = 113, RULE_graphNodePath = 114, 
+		RULE_varOrTerm = 115, RULE_varOrIri = 116, RULE_var = 117, RULE_graphTerm = 118, 
+		RULE_expression = 119, RULE_conditionalOrExpression = 120, RULE_conditionalAndExpression = 121, 
+		RULE_valueLogical = 122, RULE_relationalExpression = 123, RULE_numericExpression = 124, 
+		RULE_additiveExpression = 125, RULE_multiplicativeExpressionWithSign = 126, 
 		RULE_plusSubexpression = 127, RULE_minusSubexpression = 128, RULE_multiplicativeExpressionWithLeadingSignButNoSpace = 129, 
 		RULE_multiplicativeExpression = 130, RULE_multiplyOrDivideExpression = 131, 
 		RULE_multiplyExpression = 132, RULE_divideExpression = 133, RULE_unaryExpression = 134, 
@@ -116,7 +116,7 @@ public class SparqlAutomaticParser extends Parser {
 			"propertyListPathNotEmpty", "verbPath", "verbSimple", "tupleWithoutPath", 
 			"tupleWithPath", "verbPathOrSimple", "objectListPath", "objectPath", 
 			"path", "pathAlternative", "pathSequence", "pathElt", "pathEltOrInverse", 
-			"pathMod", "minLength", "maxLength", "pathPrimary", "pathNegatedPropertySet", 
+			"pathMod", "stepsMin", "stepsMax", "pathPrimary", "pathNegatedPropertySet", 
 			"pathOneInPropertySet", "integer", "triplesNode", "blankNodePropertyList", 
 			"triplesNodePath", "blankNodePropertyListPath", "collection", "collectionPath", 
 			"graphNode", "graphNodePath", "varOrTerm", "varOrIri", "var", "graphTerm", 
@@ -6191,11 +6191,11 @@ public class SparqlAutomaticParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class PathModContext extends ParserRuleContext {
-		public MinLengthContext minLength() {
-			return getRuleContext(MinLengthContext.class,0);
+		public StepsMinContext stepsMin() {
+			return getRuleContext(StepsMinContext.class,0);
 		}
-		public MaxLengthContext maxLength() {
-			return getRuleContext(MaxLengthContext.class,0);
+		public StepsMaxContext stepsMax() {
+			return getRuleContext(StepsMaxContext.class,0);
 		}
 		public PathModContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -6238,7 +6238,7 @@ public class SparqlAutomaticParser extends Parser {
 				setState(1037);
 				match(T__3);
 				setState(1038);
-				minLength();
+				stepsMin();
 				setState(1043);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
@@ -6252,7 +6252,7 @@ public class SparqlAutomaticParser extends Parser {
 					if (_la==INTEGER) {
 						{
 						setState(1040);
-						maxLength();
+						stepsMax();
 						}
 					}
 
@@ -6279,19 +6279,19 @@ public class SparqlAutomaticParser extends Parser {
 	}
 
 	@SuppressWarnings("CheckReturnValue")
-	public static class MinLengthContext extends ParserRuleContext {
+	public static class StepsMinContext extends ParserRuleContext {
 		public IntegerContext integer() {
 			return getRuleContext(IntegerContext.class,0);
 		}
-		public MinLengthContext(ParserRuleContext parent, int invokingState) {
+		public StepsMinContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_minLength; }
+		@Override public int getRuleIndex() { return RULE_stepsMin; }
 	}
 
-	public final MinLengthContext minLength() throws RecognitionException {
-		MinLengthContext _localctx = new MinLengthContext(_ctx, getState());
-		enterRule(_localctx, 202, RULE_minLength);
+	public final StepsMinContext stepsMin() throws RecognitionException {
+		StepsMinContext _localctx = new StepsMinContext(_ctx, getState());
+		enterRule(_localctx, 202, RULE_stepsMin);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
@@ -6311,19 +6311,19 @@ public class SparqlAutomaticParser extends Parser {
 	}
 
 	@SuppressWarnings("CheckReturnValue")
-	public static class MaxLengthContext extends ParserRuleContext {
+	public static class StepsMaxContext extends ParserRuleContext {
 		public IntegerContext integer() {
 			return getRuleContext(IntegerContext.class,0);
 		}
-		public MaxLengthContext(ParserRuleContext parent, int invokingState) {
+		public StepsMaxContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_maxLength; }
+		@Override public int getRuleIndex() { return RULE_stepsMax; }
 	}
 
-	public final MaxLengthContext maxLength() throws RecognitionException {
-		MaxLengthContext _localctx = new MaxLengthContext(_ctx, getState());
-		enterRule(_localctx, 204, RULE_maxLength);
+	public final StepsMaxContext stepsMax() throws RecognitionException {
+		StepsMaxContext _localctx = new StepsMaxContext(_ctx, getState());
+		enterRule(_localctx, 204, RULE_stepsMax);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{

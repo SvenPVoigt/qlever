@@ -12,6 +12,7 @@
 
 class PropertyPath {
  public:
+  // DONE-Sven: Added a MIN_MAX operation
   enum class Operation : std::uint8_t {
     SEQUENCE,
     ALTERNATIVE,
@@ -19,7 +20,8 @@ class PropertyPath {
     IRI,
     ZERO_OR_MORE,
     ONE_OR_MORE,
-    ZERO_OR_ONE
+    ZERO_OR_ONE,
+    MIN_MAX
   };
 
   PropertyPath() : operation_(Operation::IRI) {}
@@ -47,6 +49,18 @@ class PropertyPath {
                                        const Operation op) {
     PropertyPath p(op);
     p.children_ = std::move(children);
+    return p;
+  }
+
+  // DONE-Sven: overloaded makeWithChildren with steps limits
+  static PropertyPath makeWithChildren(std::vector<PropertyPath> children,
+                                       const Operation op, 
+                                       int64_t stepsMin, 
+                                       int64_t stepsMax) {
+    PropertyPath p(op);
+    p.children_ = std::move(children);
+    p.min_ = stepsMin;
+    p.max_ = stepsMax;
     return p;
   }
 
@@ -81,6 +95,12 @@ class PropertyPath {
   static PropertyPath makeModified(PropertyPath child,
                                    std::string_view modifier);
 
+  // DONE-Sven: overloaded makeModified with steps limits
+  static PropertyPath makeModified(PropertyPath child,
+                                   std::string_view modifier,
+                                   int64_t stepsMin, 
+                                   int64_t stepsMax);
+
   static PropertyPath makeZeroOrMore(PropertyPath child) {
     return makeWithChildren({std::move(child)}, Operation::ZERO_OR_MORE);
   }
@@ -106,6 +126,9 @@ class PropertyPath {
   bool isIri() const;
 
   Operation operation_;
+  // DONE-Sven: added min_ and max_
+  int min_;
+  int max_;
 
   // In case of an iri
   std::string iri_;

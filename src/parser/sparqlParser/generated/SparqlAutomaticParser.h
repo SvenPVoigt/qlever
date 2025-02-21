@@ -76,7 +76,7 @@ public:
     RuleVerbSimple = 89, RuleTupleWithoutPath = 90, RuleTupleWithPath = 91, 
     RuleVerbPathOrSimple = 92, RuleObjectListPath = 93, RuleObjectPath = 94, 
     RulePath = 95, RulePathAlternative = 96, RulePathSequence = 97, RulePathElt = 98, 
-    RulePathEltOrInverse = 99, RulePathMod = 100, RuleMinLength = 101, RuleMaxLength = 102, 
+    RulePathEltOrInverse = 99, RulePathMod = 100, RuleStepsMin = 101, RuleStepsMax = 102, 
     RulePathPrimary = 103, RulePathNegatedPropertySet = 104, RulePathOneInPropertySet = 105, 
     RuleInteger = 106, RuleTriplesNode = 107, RuleBlankNodePropertyList = 108, 
     RuleTriplesNodePath = 109, RuleBlankNodePropertyListPath = 110, RuleCollection = 111, 
@@ -216,8 +216,8 @@ public:
   class PathEltContext;
   class PathEltOrInverseContext;
   class PathModContext;
-  class MinLengthContext;
-  class MaxLengthContext;
+  class StepsMinContext;
+  class StepsMaxContext;
   class PathPrimaryContext;
   class PathNegatedPropertySetContext;
   class PathOneInPropertySetContext;
@@ -1986,8 +1986,8 @@ public:
   public:
     PathModContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    MinLengthContext *minLength();
-    MaxLengthContext *maxLength();
+    StepsMinContext *stepsMin();
+    StepsMaxContext *stepsMax();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1998,9 +1998,9 @@ public:
 
   PathModContext* pathMod();
 
-  class  MinLengthContext : public antlr4::ParserRuleContext {
+  class  StepsMinContext : public antlr4::ParserRuleContext {
   public:
-    MinLengthContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    StepsMinContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IntegerContext *integer();
 
@@ -2011,11 +2011,11 @@ public:
    
   };
 
-  MinLengthContext* minLength();
+  StepsMinContext* stepsMin();
 
-  class  MaxLengthContext : public antlr4::ParserRuleContext {
+  class  StepsMaxContext : public antlr4::ParserRuleContext {
   public:
-    MaxLengthContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    StepsMaxContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IntegerContext *integer();
 
@@ -2026,7 +2026,7 @@ public:
    
   };
 
-  MaxLengthContext* maxLength();
+  StepsMaxContext* stepsMax();
 
   class  PathPrimaryContext : public antlr4::ParserRuleContext {
   public:

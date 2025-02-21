@@ -221,9 +221,9 @@ public:
 
     virtual std::any visitPathMod(SparqlAutomaticParser::PathModContext *context) = 0;
 
-    virtual std::any visitMinLength(SparqlAutomaticParser::MinLengthContext *context) = 0;
+    virtual std::any visitStepsMin(SparqlAutomaticParser::StepsMinContext *context) = 0;
 
-    virtual std::any visitMaxLength(SparqlAutomaticParser::MaxLengthContext *context) = 0;
+    virtual std::any visitStepsMax(SparqlAutomaticParser::StepsMaxContext *context) = 0;
 
     virtual std::any visitPathPrimary(SparqlAutomaticParser::PathPrimaryContext *context) = 0;
 
