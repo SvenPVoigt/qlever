@@ -6,7 +6,11 @@
 #ifndef QLEVER_SRC_PARSER_PATHQUERY_H
 #define QLEVER_SRC_PARSER_PATHQUERY_H
 
+#include "index/Index.h"
 #include "parser/MagicServiceQuery.h"
+// TODO<joka921> is this the right header where the pathSearchConfiguration
+// should live, or do we need a forward declaration here?
+#include "engine/PathSearch.h"
 
 class SparqlTriple;
 
@@ -41,7 +45,7 @@ struct PathQuery : MagicServiceQuery {
 
   PathQuery() = default;
   PathQuery(PathQuery&& other) noexcept = default;
-  PathQuery(const PathQuery& other) noexcept = default;
+  PathQuery(const PathQuery& other) = default;
   PathQuery& operator=(const PathQuery& other) = default;
   PathQuery& operator=(PathQuery&& a) noexcept = default;
   ~PathQuery() noexcept override = default;
@@ -56,11 +60,12 @@ struct PathQuery : MagicServiceQuery {
    *
    * @param side A vector of TripleComponents, containing either exactly one
    *             Variable or zero or more ValueIds
-   * @param vocab A Vocabulary containing the Ids of the TripleComponents.
-   *              The Vocab is only used if the given vector contains IRIs.
+   * @param index The IndexImpl instance containing the vocabulary containing
+   * the Ids of the TripleComponents. The Vocab is only used if the given vector
+   * contains IRIs.
    */
   std::variant<Variable, std::vector<Id>> toSearchSide(
-      std::vector<TripleComponent> side, const Index::Vocab& vocab) const;
+      std::vector<TripleComponent> side, const IndexImpl& index) const;
 
   /**
    * @brief Convert this PathQuery into a PathSearchConfiguration object.
@@ -69,12 +74,14 @@ struct PathQuery : MagicServiceQuery {
    * A PathSearchException is thrown if required parameters are missing.
    * The required parameters are start, end, pathColumn and edgeColumn.
    *
-   * @param vocab A vocab containing the Ids of the IRIs in
-   *              sources_ and targets_
+   * @param index The IndexImpl instance containing the vocabulary containing
+   * the Ids of the IRIs in sources_ and targets_
    * @return A valid PathSearchConfiguration
    */
   PathSearchConfiguration toPathSearchConfiguration(
-      const Index::Vocab& vocab) const;
+      const IndexImpl& index) const;
+
+  constexpr std::string_view name() const override { return "path search"; };
 };
 
 }  // namespace parsedQuery

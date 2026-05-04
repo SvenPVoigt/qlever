@@ -59,7 +59,8 @@ class ShallowParentOperation : public Operation {
   std::shared_ptr<QueryExecutionTree> child_;
 
   explicit ShallowParentOperation(std::shared_ptr<QueryExecutionTree> child)
-      : child_{std::move(child)} {}
+      : Operation{child->getRootOperation()->getExecutionContext()},
+        child_{std::move(child)} {}
   std::string getCacheKeyImpl() const override { return "ParentOperation"; }
   std::string getDescriptor() const override {
     return "ParentOperationDescriptor";
@@ -193,7 +194,10 @@ inline auto IsDeepCopy(const Operation& other) {
       AD_PROPERTY(Operation, getCacheKey, Eq(other.getCacheKey())),
       AD_PROPERTY(Operation, getLimitOffset, Eq(other.getLimitOffset())),
       AD_PROPERTY(Operation, getExternallyVisibleVariableColumns,
-                  Eq(other.getExternallyVisibleVariableColumns())));
+                  Eq(other.getExternallyVisibleVariableColumns())),
+      AD_PROPERTY(Operation, getResultWidth, Eq(other.getResultWidth())),
+      AD_PROPERTY(Operation, getDescriptor, Eq(other.getDescriptor())),
+      AD_PROPERTY(Operation, getResultSortedOn, Eq(other.getResultSortedOn())));
 }
 
 #endif  // QLEVER_OPERATIONTESTHELPERS_H

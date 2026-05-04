@@ -6,6 +6,7 @@
 
 #include "engine/Result.h"
 #include "util/IdTableHelpers.h"
+#include "util/IndexTestHelpers.h"
 
 using namespace std::chrono_literals;
 using ::testing::AnyOf;
@@ -163,29 +164,30 @@ TEST(Result, verifyRunOnNewChunkComputedThrowsWithFullyMaterializedResult) {
 
   EXPECT_THROW(result.runOnNewChunkComputed(
                    [](const IdTableVocabPair&, std::chrono::microseconds) {},
-                   [](bool) {}),
+                   [](Result::GeneratorState) {}),
                ad_utility::Exception);
 }
 
 // _____________________________________________________________________________
 TEST(Result, verifyRunOnNewChunkComputedFiresCorrectly) {
+  auto* queryExecutionContext = ad_utility::testing::getQec();
   auto idTable1 = makeIdTableFromVector({{1, 6, 0}, {2, 5, 0}});
   auto idTable2 = makeIdTableFromVector({{3, 4, 0}});
   auto idTable3 = makeIdTableFromVector({{1, 6, 0}, {2, 5, 0}, {3, 4, 0}});
 
   Result result{
-      [](auto& t1, auto& t2, auto& t3) -> Result::Generator {
+      [](auto* qec, auto& t1, auto& t2, auto& t3) -> Result::Generator {
         std::this_thread::sleep_for(1ms);
         LocalVocab localVocab{};
-        localVocab.getIndexAndAddIfNotContained(LocalVocabEntry{
-            ad_utility::triple_component::Literal::literalWithoutQuotes(
-                "Test")});
+        localVocab.getIndexAndAddIfNotContained(
+            LocalVocabEntry::literalWithoutQuotes("Test",
+                                                  qec->getLocalVocabContext()));
         co_yield {t1.clone(), std::move(localVocab)};
         std::this_thread::sleep_for(3ms);
         co_yield {t2.clone(), LocalVocab{}};
         std::this_thread::sleep_for(5ms);
         co_yield {t3.clone(), LocalVocab{}};
-      }(idTable1, idTable2, idTable3),
+      }(queryExecutionContext, idTable1, idTable2, idTable3),
       {}};
   uint32_t callCounter = 0;
   bool finishedConsuming = false;
@@ -208,8 +210,8 @@ TEST(Result, verifyRunOnNewChunkComputedFiresCorrectly) {
           EXPECT_GE(duration, 5ms);
         }
       },
-      [&](bool error) {
-        EXPECT_FALSE(error);
+      [&](Result::GeneratorState state) {
+        EXPECT_EQ(state, Result::GeneratorState::FINISHED);
         finishedConsuming = true;
       });
 
@@ -234,14 +236,43 @@ TEST(Result, verifyRunOnNewChunkCallsFinishOnError) {
       [&](const IdTableVocabPair&, std::chrono::microseconds) {
         ++callCounterGenerator;
       },
-      [&](bool error) {
-        EXPECT_TRUE(error);
+      [&](Result::GeneratorState state) {
+        EXPECT_EQ(state, Result::GeneratorState::FAILED);
         ++callCounterFinished;
       });
 
   AD_EXPECT_THROW_WITH_MESSAGE_AND_TYPE(
       consumeGenerator(result.idTables()),
       HasSubstr("verifyRunOnNewChunkCallsFinishOnError"), std::runtime_error);
+
+  EXPECT_EQ(callCounterGenerator, 0);
+  EXPECT_EQ(callCounterFinished, 1);
+}
+
+// _____________________________________________________________________________
+TEST(Result, verifyRunOnNewChunkCallsFinishOnCancellation) {
+  Result result{[]() -> Result::Generator {
+                  throw ad_utility::CancellationException{
+                      "verifyRunOnNewChunkCallsFinishOnCancellation"};
+                  co_return;
+                }(),
+                {}};
+  uint32_t callCounterGenerator = 0;
+  uint32_t callCounterFinished = 0;
+
+  result.runOnNewChunkComputed(
+      [&](const IdTableVocabPair&, std::chrono::microseconds) {
+        ++callCounterGenerator;
+      },
+      [&](Result::GeneratorState state) {
+        EXPECT_EQ(state, Result::GeneratorState::CANCELLED);
+        ++callCounterFinished;
+      });
+
+  AD_EXPECT_THROW_WITH_MESSAGE_AND_TYPE(
+      consumeGenerator(result.idTables()),
+      HasSubstr("verifyRunOnNewChunkCallsFinishOnCancellation"),
+      ad_utility::CancellationException);
 
   EXPECT_EQ(callCounterGenerator, 0);
   EXPECT_EQ(callCounterFinished, 1);
@@ -262,8 +293,8 @@ TEST(Result, verifyRunOnNewChunkCallsFinishOnPartialConsumption) {
         [&](const IdTableVocabPair&, std::chrono::microseconds) {
           ++callCounterGenerator;
         },
-        [&](bool error) {
-          EXPECT_FALSE(error);
+        [&](Result::GeneratorState state) {
+          EXPECT_EQ(state, Result::GeneratorState::FINISHED);
           ++callCounterFinished;
         });
 
@@ -378,15 +409,25 @@ TEST(Result, verifyApplyLimitOffsetDoesCorrectlyApplyLimitAndOffset) {
   {
     auto comparisonTable = makeIdTableFromVector({{2, 7}, {3, 6}});
     uint32_t callCounter = 0;
-    Result result{idTable.clone(), {}, LocalVocab{}};
-    result.applyLimitOffset(
-        limitOffset, [&](std::chrono::microseconds, const IdTable& innerTable) {
-          // NOTE: duration can't be tested here, processors are too fast
-          EXPECT_EQ(innerTable, comparisonTable);
-          ++callCounter;
-        });
-    EXPECT_EQ(callCounter, 1);
-    EXPECT_EQ(result.idTable(), comparisonTable);
+    auto callback = [&](std::chrono::microseconds, const IdTable& innerTable) {
+      // NOTE: duration can't be tested here, processors are too fast
+      EXPECT_EQ(innerTable, comparisonTable);
+      ++callCounter;
+    };
+    {
+      Result result{idTable.clone(), {}, LocalVocab{}};
+      result.applyLimitOffset(limitOffset, callback);
+      EXPECT_EQ(callCounter, 1);
+      EXPECT_EQ(result.idTable(), comparisonTable);
+    }
+    {
+      // Now test the limit offset application for shared results;
+      Result result2{
+          std::make_shared<const IdTable>(idTable.clone()), {}, LocalVocab{}};
+      result2.applyLimitOffset(limitOffset, callback);
+      EXPECT_EQ(callCounter, 2);
+      EXPECT_EQ(result2.idTable(), comparisonTable);
+    }
   }
 
   for (auto& generator : getAllSubSplits(idTable)) {
@@ -602,3 +643,8 @@ INSTANTIATE_TEST_SUITE_P(SuccessCases, ResultDefinednessTest,
 INSTANTIATE_TEST_SUITE_P(
     FailureCases, ResultDefinednessTest,
     Combine(Values(false), Values(&wrongTable1, &wrongTable2, &wrongTable3)));
+
+// _____________________________________________________________________________
+TEST(Result, assertionOnNullptrConstruction) {
+  EXPECT_ANY_THROW(Result(Result::IdTablePtr(nullptr), {}, LocalVocab{}));
+}

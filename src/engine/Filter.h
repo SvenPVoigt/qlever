@@ -65,9 +65,9 @@ class Filter : public Operation {
   // The method is directly invoked with the construction of this `Filter`
   // object. Its implementation retrieves <PrefilterExpression, Variable> pairs
   // from the corresponding `SparqlExpression` and uses them to call
-  // `QueryExecutionTree::setPrefilterGetUpdatedQueryExecutionTree()` on the
-  // `subtree_`. If necessary the `QueryExecutionTree` for this
-  // entity will be updated.
+  // `QueryExecutionTree::getUpdatedQueryExecutionTreeWithPrefilterApplied()` on
+  // the `subtree_`. If necessary the `QueryExecutionTree` for this entity will
+  // be updated.
   void setPrefilterExpressionForChildren();
 
   Result computeResult(bool requestLaziness) override;
@@ -77,14 +77,13 @@ class Filter : public Operation {
       requires ad_utility::SimilarTo<
           Table, IdTable>) void computeFilterImpl(IdTable& dynamicResultTable,
                                                   Table&& input,
-                                                  const LocalVocab& localVocab,
                                                   std::vector<ColumnIndex>
                                                       sortedBy) const;
 
   // Run `computeFilterImpl` on the provided IdTable
-  CPP_template(typename Table)(requires ad_utility::SimilarTo<Table, IdTable>)
-      IdTable filterIdTable(std::vector<ColumnIndex> sortedBy, Table&& idTable,
-                            const LocalVocab& localVocab) const;
+  CPP_template(typename Table)(
+      requires ad_utility::SimilarTo<Table, IdTable>) IdTable
+      filterIdTable(std::vector<ColumnIndex> sortedBy, Table&& idTable) const;
 };
 
 #endif  // QLEVER_SRC_ENGINE_FILTER_H

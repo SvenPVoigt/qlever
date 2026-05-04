@@ -7,8 +7,8 @@
 
 #include "engine/AddCombinedRowToTable.h"
 #include "engine/CallFixedSize.h"
-#include "engine/Engine.h"
 #include "engine/JoinHelpers.h"
+#include "index/IdTableUtils.h"
 #include "util/JoinAlgorithms/JoinAlgorithms.h"
 
 using std::endl;
@@ -51,21 +51,16 @@ string MultiColumnJoin::getCacheKeyImpl() const {
 // _____________________________________________________________________________
 string MultiColumnJoin::getDescriptor() const {
   std::string joinVars = "";
-  for (auto p : _left->getVariableColumns()) {
-    for (auto jc : _joinColumns) {
-      // If the left join column matches the index of a variable in the left
-      // subresult.
-      if (jc[0] == p.second.columnIndex_) {
-        joinVars += p.first.name() + " ";
-      }
-    }
+  for (auto jc : _joinColumns) {
+    joinVars +=
+        _left->getVariableAndInfoByColumnIndex(jc[0]).first.name() + " ";
   }
   return "MultiColumnJoin on " + joinVars;
 }
 
 // _____________________________________________________________________________
 Result MultiColumnJoin::computeResult([[maybe_unused]] bool requestLaziness) {
-  LOG(DEBUG) << "MultiColumnJoin result computation..." << endl;
+  AD_LOG_DEBUG << "MultiColumnJoin result computation..." << endl;
 
   IdTable idTable{getExecutionContext()->getAllocator()};
   idTable.setNumColumns(getResultWidth());
@@ -77,18 +72,18 @@ Result MultiColumnJoin::computeResult([[maybe_unused]] bool requestLaziness) {
 
   checkCancellation();
 
-  LOG(DEBUG) << "MultiColumnJoin subresult computation done." << std::endl;
+  AD_LOG_DEBUG << "MultiColumnJoin subresult computation done." << std::endl;
 
-  LOG(DEBUG) << "Computing a multi column join between results of size "
-             << leftResult->idTable().size() << " and "
-             << rightResult->idTable().size() << endl;
+  AD_LOG_DEBUG << "Computing a multi column join between results of size "
+               << leftResult->idTable().size() << " and "
+               << rightResult->idTable().size() << endl;
 
   computeMultiColumnJoin(leftResult->idTable(), rightResult->idTable(),
                          _joinColumns, &idTable);
 
   checkCancellation();
 
-  LOG(DEBUG) << "MultiColumnJoin result computation done" << endl;
+  AD_LOG_DEBUG << "MultiColumnJoin result computation done" << endl;
   // If only one of the two operands has a non-empty local vocabulary, share
   // with that one (otherwise, throws an exception).
   return {std::move(idTable), resultSortedOn(),
@@ -281,7 +276,7 @@ void MultiColumnJoin::computeMultiColumnJoin(
       cols.push_back(i);
     }
     checkCancellation();
-    Engine::sort(*result, cols);
+    IdTableUtils::sort(*result, cols);
   }
 
   // The result that `zipperJoinWithUndef` produces has a different order of

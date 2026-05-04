@@ -10,9 +10,9 @@
 #include <vector>
 
 #include "backports/concepts.h"
-#include "engine/LocalVocab.h"
 #include "engine/idTable/IdTable.h"
 #include "engine/idTable/IdTableConcepts.h"
+#include "index/LocalVocab.h"
 #include "util/CancellationHandle.h"
 #include "util/ChunkedForLoop.h"
 
@@ -65,6 +65,12 @@ class MinusRowHandler {
 
   // No-op for `MINUS`.
   static void addRow(size_t, size_t) {
+    // `BlockZipperJoinImpl` expects this interface.
+  }
+
+  // No-op for `MINUS`.
+  template <typename R1, typename R2>
+  static void addRows(const R1&, const R2&) {
     // `BlockZipperJoinImpl` expects this interface.
   }
 

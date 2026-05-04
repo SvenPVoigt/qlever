@@ -13,11 +13,13 @@
 
 #include <boost/optional.hpp>
 
+#include "backports/three_way_comparison.h"
 #include "engine/idTable/IdTable.h"
 #include "global/IdTriple.h"
 #include "index/CompressedRelation.h"
 #include "index/KeyOrder.h"
 #include "util/HashMap.h"
+#include "util/TimeTracer.h"
 
 class Permutation;
 
@@ -25,7 +27,47 @@ struct NumAddedAndDeleted {
   size_t numAdded_;
   size_t numDeleted_;
 
-  bool operator<=>(const NumAddedAndDeleted&) const = default;
+  QL_DEFINE_DEFAULTED_THREEWAY_OPERATOR_LOCAL(NumAddedAndDeleted, numAdded_,
+                                              numDeleted_)
+
+  friend std::ostream& operator<<(std::ostream& str,
+                                  const NumAddedAndDeleted& n) {
+    str << "added " << n.numAdded_ << ", deleted " << n.numDeleted_;
+    return str;
+  }
+};
+
+// Statistics collected during a vacuum operation on a block.
+struct VacuumStatistics {
+  // Only updates that have an effect are kept. Inserts that already exist
+  // and deletes that don't exist are removed.
+  size_t numDeletionsRemoved_;
+  size_t numInsertionsRemoved_;
+  size_t numDeletionsKept_;
+  size_t numInsertionsKept_;
+
+  size_t totalRemoved() const {
+    return numDeletionsRemoved_ + numInsertionsRemoved_;
+  }
+
+  size_t totalKept() const { return numDeletionsKept_ + numInsertionsKept_; }
+
+  VacuumStatistics& operator+=(const VacuumStatistics& other) {
+    numDeletionsRemoved_ += other.numDeletionsRemoved_;
+    numInsertionsRemoved_ += other.numInsertionsRemoved_;
+    numDeletionsKept_ += other.numDeletionsKept_;
+    numInsertionsKept_ += other.numInsertionsKept_;
+    return *this;
+  }
+
+  friend void to_json(nlohmann::json& j, const VacuumStatistics& stats);
+};
+
+// Triples identified for removal during a vacuum operation.
+struct TriplesToVacuum {
+  std::vector<IdTriple<0>> deletionsToRemove_;
+  std::vector<IdTriple<0>> insertionsToRemove_;
+  VacuumStatistics stats_;
 };
 
 // A triple and its block in a particular permutation. For a detailed definition
@@ -48,7 +90,9 @@ struct LocatedTriple {
       ql::span<const CompressedBlockMetadata> blockMetadata,
       const qlever::KeyOrder& keyOrder, bool insertOrDelete,
       ad_utility::SharedCancellationHandle cancellationHandle);
-  bool operator==(const LocatedTriple&) const = default;
+
+  QL_DEFINE_DEFAULTED_EQUALITY_OPERATOR_LOCAL(LocatedTriple, blockIndex_,
+                                              triple_, insertOrDelete_)
 
   // This operator is only for debugging and testing. It returns a
   // human-readable representation.
@@ -121,9 +165,10 @@ class LocatedTriplesPerBlock {
   // effective.
   NumAddedAndDeleted numTriples(size_t blockIndex) const;
 
-  // Returns whether there are updates triples for the block with the index
-  // `blockIndex`.
-  bool hasUpdates(size_t blockIndex) const;
+  // Returns an optional reference to update triples for the block with the
+  // index `blockIndex`. If no such block exists, return `std::nullopt`.
+  boost::optional<const LocatedTriples&> getUpdatesIfPresent(
+      size_t blockIndex) const;
 
   // Merge located triples for `blockIndex_` (there must be at least one,
   // otherwise this function must not be called) with the given input `block`.
@@ -161,7 +206,9 @@ class LocatedTriplesPerBlock {
   // PRECONDITION: The `locatedTriples` must not already exist in
   // `LocatedTriplesPerBlock`.
   std::vector<LocatedTriples::iterator> add(
-      ql::span<const LocatedTriple> locatedTriples);
+      ql::span<const LocatedTriple> locatedTriples,
+      ad_utility::timer::TimeTracer& tracer =
+          ad_utility::timer::DEFAULT_TIME_TRACER);
 
   // Removes the given `LocatedTriple` from the `LocatedTriplesPerBlock`.
   //
@@ -204,12 +251,27 @@ class LocatedTriplesPerBlock {
     augmentedMetadata_.reset();
   }
 
+  // Identify, for all blocks in `perm` whose number of located triples is at
+  // least `vacuum-minimum-block-size`, the redundant insertions (triple already
+  // in index) and invalid deletions (triple not in index). The redundant
+  // triples are then returned as `SPO`. Depending on the updates different
+  // permutations may be more or less effective.
+  TriplesToVacuum identifyTriplesToVacuum(
+      const Permutation& perm,
+      ad_utility::SharedCancellationHandle cancellationHandle) const;
+
   // Return `true` iff one of the blocks contains `triple` with the given
   // `insertOrDelete` status (`true` for inserted, `false` for deleted).
   //
   // NOTE: This is expensive because it iterates over all blocks and checks
   // containment in each. It is only used in our tests, for convenience.
   bool isLocatedTriple(const IdTriple<0>& triple, bool insertOrDelete) const;
+
+  // Compute the located triples that are present in this
+  // `LocatedTriplesPerBlock` instance but not in `oldBlocks`. The result is a
+  // pair of vectors (insertions, deletions), each sorted in SPO order.
+  std::array<std::vector<IdTriple<0>>, 2> computeDiff(
+      const LocatedTriplesPerBlock& oldBlocks) const;
 
   // This operator is only for debugging and testing. It returns a
   // human-readable representation.
@@ -243,7 +305,13 @@ std::ostream& operator<<(std::ostream& os, const std::vector<IdTriple<0>>& v);
 // of the previous block is smaller and the first triple of the next block is
 // larger), then the block is the next block.
 //
-// 2.2. In particular, if the triple is smaller than all triples in the
+// 2.2. [Exception to 2.1] triples that are equal to the last triple of a block
+// with only the graph ID being higher, also belong to that block. This enforces
+// the invariant that triples that only differ in their graph are stored in the
+// same block (this is expected and enforced by the
+// `CompressedRelationReader/Writer`).
+//
+// 2.3. In particular, if the triple is smaller than all triples in the
 // permutation, the position is the first position of the first block.
 //
 // 3. If the triple is larger than all triples in the permutation, the block

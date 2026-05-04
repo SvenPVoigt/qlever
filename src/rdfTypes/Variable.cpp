@@ -8,7 +8,7 @@
 
 #include "global/Constants.h"
 #include "parser/ParserAndVisitorBase.h"
-#include "parser/data/ConstructQueryExportContext.h"
+#include "util/Exception.h"
 
 // ___________________________________________________________________________
 Variable::Variable(std::string name, bool checkName) : _name{std::move(name)} {
@@ -19,13 +19,6 @@ Variable::Variable(std::string name, bool checkName) : _name{std::move(name)} {
   }
   // normalize notation for consistency
   _name[0] = '?';
-}
-
-// ___________________________________________________________________________
-[[nodiscard]] std::optional<std::string> Variable::evaluate(
-    const ConstructQueryExportContext& context,
-    [[maybe_unused]] PositionInTriple positionInTriple) const {
-  return decoupledEvaluateFuncPtr()(*this, context, positionInTriple);
 }
 
 // _____________________________________________________________________________
@@ -97,9 +90,9 @@ void Variable::appendEscapedWord(std::string_view word, std::string& target) {
     // Convert all other characters based on their unicode codepoint.
     UChar32 codePoint;
     int64_t i = 0;
-    U8_NEXT_OR_FFFD(reinterpret_cast<const uint8_t*>(ptr), i,
-                    static_cast<int64_t>(word.size()), codePoint);
-    AD_CONTRACT_CHECK(codePoint != 0xFFFD, "Invalid UTF-8");
+    U8_NEXT(reinterpret_cast<const uint8_t*>(ptr), i,
+            static_cast<int64_t>(word.size()), codePoint);
+    AD_CONTRACT_CHECK(codePoint != U_SENTINEL, "Invalid UTF-8");
     if (codePointSuitableForVariableName(codePoint)) {
       target.append(ptr, i);
     } else {
@@ -131,17 +124,4 @@ bool Variable::isValidVariableName(std::string_view var) {
   } catch (...) {
     return false;
   }
-}
-
-// Implement the indirection for the evaluation of variables (see the header for
-// details).
-Variable::EvaluateFuncPtr& Variable::decoupledEvaluateFuncPtr() {
-  static constexpr auto dummy =
-      [](const Variable&, const ConstructQueryExportContext&,
-         PositionInTriple) -> std::optional<std::string> {
-    throw std::runtime_error(
-        "Variable::decoupledEvaluateFuncPtr() not yet set");
-  };
-  static EvaluateFuncPtr ptr = dummy;
-  return ptr;
 }

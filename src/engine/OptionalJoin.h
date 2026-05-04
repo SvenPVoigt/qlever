@@ -9,6 +9,8 @@
 #include "engine/Operation.h"
 #include "engine/QueryExecutionTree.h"
 
+// Forward declaration
+class IndexScan;
 class OptionalJoin : public Operation {
  private:
   std::shared_ptr<QueryExecutionTree> _left;
@@ -31,10 +33,14 @@ class OptionalJoin : public Operation {
   std::optional<size_t> _costEstimate;
   bool _multiplicitiesComputed = false;
 
+  // Specify whether the join columns should be part of the result.
+  bool keepJoinColumns_ = true;
+
  public:
   OptionalJoin(QueryExecutionContext* qec,
                std::shared_ptr<QueryExecutionTree> t1,
-               std::shared_ptr<QueryExecutionTree> t2);
+               std::shared_ptr<QueryExecutionTree> t2,
+               bool keepJoinColumns = true);
 
  private:
   std::string getCacheKeyImpl() const override;
@@ -77,8 +83,32 @@ class OptionalJoin : public Operation {
                           std::shared_ptr<const Result> right,
                           bool requestLaziness);
 
+  // Compute the result for the result from the `left` subtree
+  // and the `rightScan`. This function applied block prefiltering for the
+  // `rightScan`. This function currently only supports single-column OPTIONAL
+  // joins, or OPTIONAL joins on two columns where UNDEF values are only in the
+  // last (i.e. the second) join column. The `left` and `rightScan` have to be
+  // obtained from the members `_left` and `_right` respectively, as those
+  // members will be used to get additional required metadata for the arguments
+  // `left` and `rightScan`.
+  Result optionalJoinWithIndexScan(std::shared_ptr<const Result> left,
+                                   std::shared_ptr<IndexScan> rightScan,
+                                   bool requestLaziness);
+
  private:
   std::unique_ptr<Operation> cloneImpl() const override;
+
+  // Helper function for `tryIndexNestedLoopJoinIfSuitable` which makes the
+  // logic reusable.
+  bool isIndexNestedLoopJoinSuitable() const;
+
+  // Nested loop join optimization than can apply when a memory intensive sort
+  // can be avoided this way.
+  std::optional<Result> tryIndexNestedLoopJoinIfSuitable(bool requestLaziness);
+
+  std::optional<std::shared_ptr<QueryExecutionTree>>
+  makeTreeWithStrippedColumns(
+      const std::set<Variable>& variables) const override;
 
   void computeSizeEstimateAndMultiplicities();
 
